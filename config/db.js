@@ -1,6 +1,6 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const uri = "mongodb+srv://ahmedabrarzayad_db_user:ZaYAD2017@cluster0.ccvlctc.mongodb.net/?appName=Cluster0";
+const uri = process.env.MONGODB_URI || "mongodb+srv://ahmedabrarzayad_db_user:ZaYAD2017@cluster0.ccvlctc.mongodb.net/?appName=Cluster0";
 
 // Create a new MongoClient
 const client = new MongoClient(uri, {
@@ -26,7 +26,8 @@ async function connectDB() {
     db = client.db("ai-prompts"); 
   } catch (err) {
     console.error("MongoDB connection failed:", err);
-    process.exit(1);
+    // Don't exit in serverless - just log the error
+    throw err;
   }
 }
 
