@@ -12,23 +12,34 @@ app.use(
     cors(),
 );
 
-
-connectDB().then(() => {
-
-    app.get("/", (req, res) => {
-        res.send("AI Prompt Marketplace Backend is running");
+// Initialize database connection (don't block)
+let dbConnected = false;
+connectDB()
+    .then(() => {
+        console.log("MongoDB connected successfully");
+        dbConnected = true;
     })
+    .catch((error) => {
+        console.error("MongoDB connection failed:", error);
+    });
 
-    app.use("/api/prompts", promptsRouter);
+// Define routes synchronously for Vercel
+app.get("/", (req, res) => {
+    res.json({ 
+        message: "AI Prompt Marketplace Backend is running",
+        status: "ok",
+        dbConnected: dbConnected
+    });
+});
 
-    // For local development
-    if (process.env.NODE_ENV !== 'production') {
-        app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
-        });
-    }
+app.use("/api/prompts", promptsRouter);
 
-})
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
 
 // Export for Vercel serverless
 module.exports = app;
